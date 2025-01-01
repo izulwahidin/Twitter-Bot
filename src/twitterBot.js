@@ -69,8 +69,8 @@ class TwitterBot {
     const selector = await element.evaluate(el => el.getAttribute('data-testid'));
 
     if(selector === "like"){
-      await tweetElement.waitForSelector('[data-testid="like"]');
-      const likeButton = await tweetElement.$('[data-testid="like"]');
+      await tweetElement.waitForSelector(likeSelector);
+      const likeButton = await tweetElement.$(likeSelector);
       await likeButton.click();
       return true
     }
@@ -90,11 +90,12 @@ class TwitterBot {
     const selector = await element.evaluate(el => el.getAttribute('data-testid'));
 
     if(selector === "retweet"){
-        const retweetButton = await tweetElement.$('[data-testid="retweet"]');
+        const retweetButton = await tweetElement.$(retweetSelector);
         await retweetButton.click();
         // Wait for retweet confirmation dialog and click
-        await this.page.waitForSelector('[data-testid="retweetConfirm"]');
-        await this.page.click('[data-testid="retweetConfirm"]');
+        const retweetConfirmSelector = '[data-testid="retweetConfirm"]'
+        await this.page.waitForSelector(retweetConfirmSelector);
+        await this.page.click(retweetConfirmSelector);
         return true
     }
     return false;

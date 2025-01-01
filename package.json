@@ -1,0 +1,7 @@
+{
+	"dependencies": {
+		"pocketbase": "^0.24.0",
+		"puppeteer": "^23.11.1",
+		"puppeteer-core": "^23.11.1"
+	}
+}

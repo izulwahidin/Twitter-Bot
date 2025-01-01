@@ -12,12 +12,12 @@ async function main(tweetID) {
             await bot.initialize(cookie);
             await bot.performActions(tweetID);
             const currentCookie = await bot.page.cookies();
-            await db.saveCookies(id,{cookie:currentCookie})
+            await db.saveCookie(id,{cookie:currentCookie})
         } catch (error) {
             console.log(error.message)
             switch (error.message) {
                 case "Invalid or expired cookies":
-                    await db.saveCookies(id,{status: "dead"})
+                    await db.saveCookie(id,{status: "dead"})
                     break;
                 default:
                     console.log(error.message);
@@ -30,4 +30,4 @@ async function main(tweetID) {
     }
   }
   
-main("1874390779084546522");
+main("1874452211666948535");
