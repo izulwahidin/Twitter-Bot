@@ -31,8 +31,8 @@ class TwitterBot {
   async checkLoginStatus() {
     try {
       // Check for elements that only appear when logged in
-      await this.page.$('[data-testid="SideNav_AccountSwitcher_Button"]', 
-        { timeout: 5000 });
+      await this.page.waitForSelector('[data-testid="SideNav_AccountSwitcher_Button"]', 
+        { timeout: 5000, waitUntil: 'networkidle0' });
       return true;
     } catch (error) {
       return false;
@@ -40,7 +40,6 @@ class TwitterBot {
   }
 
   async performActions(targetAccount) {
-    
     // Navigate to target account
     await this.page.goto(`${config.baseUrl}/i/web/status/${targetAccount}`);
     await this.page.waitForSelector('[data-testid="tweet"]');
@@ -48,7 +47,6 @@ class TwitterBot {
     const tweets = await this.page.$('[data-testid="tweet"]');
 
     try {
-        
         const performLike = await this.likeTweet(tweets)
         console.log(`${targetAccount} ${performLike?"liked":"Already liked"}`)
         const performRetweet = await this.retweetTweet(tweets);
@@ -59,24 +57,63 @@ class TwitterBot {
   }
 
   async likeTweet(tweetElement) {
-    const likeButton = await tweetElement.$('[data-testid="like"]');
-    if (likeButton) {
+    const likeSelector = '[data-testid="like"]';
+    const unlikeSelector = '[data-testid="unlike"]';
+
+    const element = await Promise.race([
+        tweetElement.waitForSelector(likeSelector, { timeout: 5000 }),
+        tweetElement.waitForSelector(unlikeSelector, { timeout: 5000 }),
+    ]);
+
+
+    const selector = await element.evaluate(el => el.getAttribute('data-testid'));
+
+    if(selector === "like"){
+      await tweetElement.waitForSelector('[data-testid="like"]');
+      const likeButton = await tweetElement.$('[data-testid="like"]');
       await likeButton.click();
       return true
     }
-    return false
+    return false;
+
+    // await tweetElement.waitForSelector('[data-testid="like"]');
+    // const likeButton = await tweetElement.$('[data-testid="like"]');
+    // if (likeButton) {
+    //   await likeButton.click();
+    //   return true
+    // }
   }
 
   async retweetTweet(tweetElement) {
-    const retweetButton = await tweetElement.$('[data-testid="retweet"]');
-    if (retweetButton) {
-      await retweetButton.click();
-      // Wait for retweet confirmation dialog and click
-      await this.page.waitForSelector('[data-testid="retweetConfirm"]');
-      await this.page.click('[data-testid="retweetConfirm"]');
-      return true
+    const retweetSelector = '[data-testid="retweet"]';
+    const unretweetSelector = '[data-testid="unretweet"]';
+
+    const element = await Promise.race([
+        tweetElement.waitForSelector(retweetSelector, { timeout: 5000 }),
+        tweetElement.waitForSelector(unretweetSelector, { timeout: 5000 }),
+    ]);
+
+
+    const selector = await element.evaluate(el => el.getAttribute('data-testid'));
+
+    if(selector === "retweet"){
+        const retweetButton = await tweetElement.$('[data-testid="retweet"]');
+        await retweetButton.click();
+        await this.page.waitForSelector('[data-testid="retweetConfirm"]');
+        await this.page.click('[data-testid="retweetConfirm"]');
+        return true
     }
-    return false
+    return false;
+    // await tweetElement.waitForSelector('[data-testid="retweet"]');
+    // const retweetButton = await tweetElement.$('[data-testid="retweet"]');
+    // if (retweetButton) {
+    //   await retweetButton.click();
+    //   // Wait for retweet confirmation dialog and click
+    //   await this.page.waitForSelector('[data-testid="retweetConfirm"]');
+    //   await this.page.click('[data-testid="retweetConfirm"]');
+    //   return true
+    // }
+    // return false
   }
 
   async randomDelay(min, max) {
