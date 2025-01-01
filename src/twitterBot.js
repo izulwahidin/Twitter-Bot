@@ -75,13 +75,6 @@ class TwitterBot {
       return true
     }
     return false;
-
-    // await tweetElement.waitForSelector('[data-testid="like"]');
-    // const likeButton = await tweetElement.$('[data-testid="like"]');
-    // if (likeButton) {
-    //   await likeButton.click();
-    //   return true
-    // }
   }
 
   async retweetTweet(tweetElement) {
@@ -99,21 +92,12 @@ class TwitterBot {
     if(selector === "retweet"){
         const retweetButton = await tweetElement.$('[data-testid="retweet"]');
         await retweetButton.click();
+        // Wait for retweet confirmation dialog and click
         await this.page.waitForSelector('[data-testid="retweetConfirm"]');
         await this.page.click('[data-testid="retweetConfirm"]');
         return true
     }
     return false;
-    // await tweetElement.waitForSelector('[data-testid="retweet"]');
-    // const retweetButton = await tweetElement.$('[data-testid="retweet"]');
-    // if (retweetButton) {
-    //   await retweetButton.click();
-    //   // Wait for retweet confirmation dialog and click
-    //   await this.page.waitForSelector('[data-testid="retweetConfirm"]');
-    //   await this.page.click('[data-testid="retweetConfirm"]');
-    //   return true
-    // }
-    // return false
   }
 
   async randomDelay(min, max) {
